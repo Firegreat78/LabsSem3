@@ -1,19 +1,21 @@
 #pragma once
-#include "MyString.h"
+#include <string>
+#include <vector>
+#include <xstring>
 
-void Increment(MyString&);
-
+// ƒлинное число (std::string)
 class LongNumber
 {
 	int sign;
-	MyString str;
-
+	std::string str;
+	static const std::string max_abs; // максимально возможный модуль числа
+	
 	// ѕреобразовать модуль числа в его строковое представление
-	static const MyString Num2Str(long long);
+	static const std::string NumToStr(long long);
 
 	// ќтсечь незначащие нули у строки (последний нуль не отсекаетс€)
 	// "(0...0)0" -> "0"
-	static const MyString StrippedLeadingZeros(const MyString&);
+	static const std::string StripLeadingZeros(const std::string&);
 
 	// —равнение модулей двух чисел
 	// ¬озврат:
@@ -29,18 +31,20 @@ class LongNumber
 	// -1 if a < b.
 	const int Compare(const LongNumber&) const;
 
-	static const MyString UnsignedAdd(const MyString&, const MyString&);
-	static const MyString UnsignedSubtract(const MyString&, const MyString&);
-	static const MyString UnsignedMultiply(const MyString&, const MyString&);
+	static const std::string UnsignedAdd(const std::string&, const std::string&);
+	static const std::string UnsignedSubtract(const std::string&, const std::string&);
+	static const std::string UnsignedMultiply(const std::string&, const std::string&);
 
 public:
 	const LongNumber();
 	const LongNumber(const char*, const int);
-	const LongNumber(const MyString&, const int);
+	const LongNumber(const std::string&, const int);
 	const LongNumber(const LongNumber&);
 	const LongNumber(const long long);
 
-	const MyString ToString() const;
+	const std::string ToString() const;
+	void Print() const;
+	void AddToVector(std::vector<LongNumber*>&);
 
 	const LongNumber Abs() const;
 
@@ -48,47 +52,61 @@ public:
 
 	const LongNumber& operator=(const long long);
 	const LongNumber& operator=(const LongNumber&);
+	const LongNumber& operator=(const LongNumber&&);
 
 	const bool operator==(const LongNumber&) const;
+	const bool operator==(const LongNumber&&) const;
 	const bool operator==(const long long) const;
 
 	const bool operator!=(const LongNumber&) const;
+	const bool operator!=(const LongNumber&&) const;
 	const bool operator!=(const long long) const;
 
 	const bool operator>(const LongNumber&) const;
+	const bool operator>(const LongNumber&&) const;
 	const bool operator>(const long long) const;
 
 	const bool operator>=(const LongNumber&) const;
+	const bool operator>=(const LongNumber&&) const;
 	const bool operator>=(const long long) const;
 
 	const bool operator<(const LongNumber&) const;
+	const bool operator<(const LongNumber&&) const;
 	const bool operator<(const long long) const;
 
 	const bool operator<=(const LongNumber&) const;
+	const bool operator<=(const LongNumber&&) const;
 	const bool operator<=(const long long) const;
 
 	const LongNumber operator+() const;
 	const LongNumber operator-() const;
 
 	const LongNumber operator+(const LongNumber&) const;
-	const LongNumber& operator+=(const LongNumber&) const;
+	const LongNumber& operator+=(const LongNumber&);
+	const LongNumber operator+(const LongNumber&&) const;
+	const LongNumber& operator+=(const LongNumber&&);
 	const LongNumber operator+(const long long) const;
-	const LongNumber& operator+=(const long long) const;
+	const LongNumber& operator+=(const long long);
 
 	const LongNumber operator*(const LongNumber&) const;
-	const LongNumber& operator*=(const LongNumber&) const;
+	const LongNumber& operator*=(const LongNumber&);
+	const LongNumber operator*(const LongNumber&&) const;
+	const LongNumber& operator*=(const LongNumber&&);
 	const LongNumber operator*(const long long) const;
-	const LongNumber& operator*=(const long long) const;
+	const LongNumber& operator*=(const long long);
 
 	const LongNumber operator-(const LongNumber&) const;
-	const LongNumber& operator-=(const LongNumber&) const;
+	const LongNumber& operator-=(const LongNumber&);
+	const LongNumber operator-(const LongNumber&&) const;
+	const LongNumber& operator-=(const LongNumber&&);
 	const LongNumber operator-(const long long) const;
-	const LongNumber& operator-=(const long long) const;
+	const LongNumber& operator-=(const long long);
 
-	const LongNumber& operator++() const;
-	const LongNumber& operator--() const;
+	const LongNumber& operator++();
+	const LongNumber& operator--();
 
-	const LongNumber& operator++(int) const;
-	const LongNumber& operator--(int) const;
+	const LongNumber operator++(int);
+	const LongNumber operator--(int);
+	
 };
 

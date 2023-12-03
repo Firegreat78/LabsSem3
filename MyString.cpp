@@ -3,6 +3,7 @@
 #include <cstring>
 #include <locale>
 
+
 const bool MyString::IsPrint(const char* str)
 {
 	for (int i = 0; str[i] != 0; ++i) { if (!isprint(str[i])) return false; }
@@ -65,11 +66,20 @@ MyString::MyString(const MyString& str)
 	this->symbols[this->capacity] = 0;
 }
 
+MyString::MyString(const MyString& str, const int capacity)
+{
+	this->capacity = capacity;
+	this->length = std::min(str.length, capacity);
+	this->symbols = (char*)malloc(capacity + 1);
+	for (int i = 0; i < this->length; i++) this->symbols[i] = str.symbols[i];
+	this->symbols[this->length] = 0;
+}
+
 // Оператор присваивания
 const MyString& MyString::operator=(const char* str)
 {
 	const int len = strlen(str);
-	length = len;
+	this->length = len;
 	this->SetCapacity(len);
 	for (int i = 0; i < len; ++i) this->symbols[i] = str[i];
 	this->symbols[len] = 0;
@@ -109,6 +119,7 @@ const bool MyString::IsNumeric() const
 // Установить ёмкость строки
 void MyString::SetCapacity(const int capacity)
 {
+	if (this->capacity == capacity) return;
 	if (capacity < 0) throw std::invalid_argument("A string's capacity cannot be a negative number");
 	this->capacity = capacity;
 	this->symbols = (char*)realloc(this->symbols, capacity + 1);
@@ -151,6 +162,7 @@ const MyString MyString::Slice(const int startInclusive, const int endExclusive)
 {
 	if (startInclusive < 0 || endExclusive > this->length || endExclusive < startInclusive) throw std::invalid_argument("");
 	const int len = endExclusive - startInclusive;
+	if (len == this->length) return *this;
 	MyString str(len);
 	for (int i = 0; i < len; ++i) str.symbols[i] = this->symbols[i + startInclusive];
 	str.symbols[len] = 0;
@@ -169,7 +181,7 @@ const bool MyString::operator==(const MyString& str) const
 	return strcmp(this->symbols, str.symbols) == 0;
 }
 
-const char MyString::operator[](const int index) const
+char& MyString::operator[](const int index) const
 {
 	if (index >= this->length) throw std::invalid_argument("String index out of bounds");
 	return this->symbols[index];
@@ -178,35 +190,38 @@ const char MyString::operator[](const int index) const
 const MyString MyString::operator+(const char* str) const
 {
 	if (!IsPrint(str)) throw std::invalid_argument("A string can't contain non-printable characters");
-	const int len2 = strlen(str);
+	const int len2 = strlen(str); 
 	MyString sum(this->length + len2);
+	sum.length = this->length + len2;
 	for (int i = 0; i < this->length; i++) sum.symbols[i] = this->symbols[i];
 	for (int i = 0; i < len2; i++) sum.symbols[this->length + i] = str[i];
 	sum.symbols[this->length + len2] = 0;
 	return sum;
 }
 
-const MyString MyString::operator+(MyString& str) const
+const MyString MyString::operator+(const MyString& str) const
 {
 	MyString sum(this->length + str.length);
+	sum.length = this->length + str.length;
 	for (int i = 0; i < this->length; i++) sum.symbols[i] = this->symbols[i];
 	for (int i = 0; i < str.length; i++) sum.symbols[this->length + i] = str.symbols[i];
-	sum.symbols[this->length + str.length] = 0;
+	sum.symbols[sum.length] = 0;
 	return sum;
 }
 
-const MyString MyString::operator+(MyString&& str) const
+const MyString MyString::operator+(const MyString&& str) const
 {
 	return *this + str;
 }
 
 const MyString MyString::operator+(const char ch) const
 {
-	if (!isprint(ch)) throw std::invalid_argument("A string can't contain non-printable characters");
-	MyString result(*this, this->length + 1);
-	result.symbols[this->length] = ch;
-	result.symbols[this->length + 1] = 0;
-	return result;
+	if (!isprint(ch)) throw std::invalid_argument("");
+	MyString str(*this, this->length + 1);
+	str.symbols[this->length] = ch;
+	str.symbols[this->length + 1] = 0;
+	str.length = this->length + 1;
+	return str;
 }
 
 const MyString& MyString::operator+=(const char* str)
@@ -246,15 +261,19 @@ const MyString& MyString::operator+=(const char ch)
 const MyString MyString::operator*(const int val) const
 {
 	if (val < 0) throw std::invalid_argument("Cannot multiply a string by a negative integer");
-	MyString result(*this, this->length * val);
-	for (int i = 1; i < val; ++i) result += this->symbols;
-	return result;
+
+	MyString res(this->length * val);
+	res.length = this->length * val;
+	for (int i = 0; i < res.length; i++) res.symbols[i] = this->symbols[i % this->length];
+	res.symbols[res.length] = 0;
+	return res;
 }
 
 const MyString& MyString::operator*=(const int val)
 {
 	if (val < 0) throw std::invalid_argument("Cannot multiply a string by a negative integer");
-	if (this->capacity < (this->length * val)) this->SetCapacity(this->length * val);
+	this->length *= val;
+	if (this->capacity < this->length) this->SetCapacity(this->length);
 	MyString temp(*this);
 	for (int i = 1; i < val; i++) *this += temp;
 	return *this;

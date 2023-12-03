@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="LabsSem3.cpp" />
     <ClCompile Include="LongNumber.cpp" />
+    <ClCompile Include="LongNumber2.cpp" />
     <ClCompile Include="MyString.cpp" />
   </ItemGroup>
   <ItemGroup>

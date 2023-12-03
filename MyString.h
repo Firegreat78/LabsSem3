@@ -8,6 +8,7 @@ class MyString
 	int length;
 	
 	friend void Increment(MyString&);
+	friend void Decrement(MyString&);
 
 	static const bool IsPrint(const char* str);
 public:
@@ -60,20 +61,21 @@ public:
 
 	const bool operator==(const char* str) const;
 	const bool operator==(const MyString& str) const;
+	const bool operator==(const MyString&& str) const;
 
-	const char operator[](const int index) const;
+	char& operator[](const int index) const;
 
-	const MyString operator+(const char* str) const;
-	const MyString operator+(MyString& str) const;
-	const MyString operator+(MyString&& str) const;
-	const MyString operator+(const char ch) const;
+	const MyString operator+(const char*) const;
+	const MyString operator+(const MyString&) const;
+	const MyString operator+(const MyString&&) const;
+	const MyString operator+(const char) const;
 
 	const MyString& operator+=(const char* str);
 	const MyString& operator+=(const MyString& str);
 	const MyString& operator+=(const MyString&& str);
 	const MyString& operator+=(const char ch);
 
-	const MyString operator*(const int val) const;
+	const MyString operator*(const int) const;
 
-	const MyString& operator*=(const int val);
+	const MyString& operator*=(const int);
 };
