@@ -1,66 +1,81 @@
 #include <iostream>
 #include <vector>
-#include "LongNumber2.h"
 #include "LongNumber.h"
 #include "MyString.h"
 
 using std::string;
 using std::cout;
+using std::cin;
 using std::vector;
+using std::swap;
+using std::exception;
+
+LongNumber arr[4];
+LongNumber arr2d[5][5]; // массивы в куче
 
 int main()
 {
-	// ѕередача возвращаемого значени€ по ссылке:
-	// и через указатель:
-	MyString mystr = "12345"; // "12345"
-	cout << mystr.AsCharArray() << '\n'; // вернули указатель на начало области пам€ти
-	mystr[0] = '6'; // "62345" - изменили символ на нулевой позиции
-	cout << mystr.AsCharArray() << '\n'; // "62345"
+	LongNumber st_arr[2];
+	LongNumber st_arr2d[2][2]; // массивы в стеке р€дом с блоком try
+	exception a;
+	try
+	{
+		st_arr[0] = 54347537472;
+		st_arr[1] = -5434753232327472;
+		st_arr2d[1][0] = 694;
+		st_arr2d[0][0] = -44123631;
+		arr2d[1][2] = 123; // значение сохран€етс€
+		arr2d[0][1] = 14344523; // значение сохран€етс€
+		arr[0] = LongNumber(LongNumber::max_abs, 1); // выполнитс€, т. к. исключение будет вызвано после присваивани€
+		arr[3] = LongNumber(LongNumber::max_abs, 1); // выполнитс€, т. к. исключение будет вызвано после присваивани€
+		arr[1] = arr[0] + 434; // arr[1] будет в том состо€нии, в каком он был до блока try, выражение (arr[0] + 434) не будет "вычислено"
+		arr[2] = 434; // не выполнитс€, т. к. исключение было вызвано до присваивани€
+	}
+	catch (const exception e)
+	{
 
-	// ƒружественна€ функци€: (используетс€ дл€ инкремента и декремента)
-	LongNumber2 num2_2 = -100;
-	num2_2++; // -99
-	num2_2--; // -100
+	}
+
+	try
+	{
+		string numeric;
+		cout << "Enter a numeric string: ";
+		cin >> numeric; cout << '\n';
+		LongNumber num(numeric, -1); // знак отрицательный
+		cout << "Number: " << num.ToString() << '\n';
+	}
+
+	catch (const std::invalid_argument e) // можно отлавливать разные типы исключений
+	{
+		cout << "Exception description: ";
+		cout << e.what();
+	}
+
+	catch (const std::logic_error e)
+	{
+		cout << "Exception description: ";
+		cout << e.what();
+	}
 
 
-	// this:
-	cout << "\nOperator this and vector:\n";
-	vector<LongNumber*> vec;
-	LongNumber value_to_add = 54353422;
-	LongNumber value_to_add2 = LongNumber(INT64_MAX) + 4323;
-	value_to_add.AddToVector(vec); // элемент добавлен в коллекцию
-	value_to_add2.AddToVector(vec); // элемент 2 добавлен в коллекцию
-	for (auto num : vec) num->Print();
+	MyString non_printable = "12345";
+	try
+	{
+		non_printable += 6; // управл€ющий символ
+	}
 
-	
+	catch (std::exception e)
+	{
 
-	// ќператор +
-	cout << "\nOperator '+' test\n";
-	LongNumber num = LongNumber(INT64_MIN) * 12; // -110680464442257309696
-	LongNumber num2 = +num; // -110680464442257309696 (то же значение)
-	cout << "num = " << num.ToString() << '\n';
-	cout << "num2 = " << num2.ToString() << '\n';
+	}
 
+	try
+	{
+		non_printable[0] = 4; // управл€ющий символ (не отловлен)
+	}
 
-	// »нкремент
-	cout << "\nIncrement test:\n";
-	LongNumber a = 123;
-	cout << "Before increment: a = " << a.ToString() << '\n';
-	auto b = a++; // b = 123, a = 124
-	cout << "b = a++, a = " << a.ToString() << ", b = " << b.ToString() << '\n';
-	auto c = ++a; // c = 125, a = 125
-	cout << "c = ++a, a = " << a.ToString() << ", c = " << c.ToString() << '\n';
+	catch (std::exception e)
+	{
 
-	for (LongNumber i = -10; i <= 10; ++i) i.Print();
-
-
-	// std::string
-	cout << "\nstd::string test\n";
-	string str = "12345"; cout << str << '\n'; // "12345"
-	str[str.length() - 1]++; // возвращает символ по ссылке
-	cout << str << '\n'; // "12346"
-	cout << str.substr(2) << '\n'; // "346"
-	str.push_back('9'); // добавить символ в конец строки
-	cout << str << '\n'; // "123469"
-
+	}
 }

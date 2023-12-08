@@ -8,7 +8,6 @@ class LongNumber
 {
 	int sign;
 	std::string str;
-	static const std::string max_abs; // максимально возможный модуль числа
 	
 	// Преобразовать модуль числа в его строковое представление
 	static const std::string NumToStr(long long);
@@ -36,6 +35,7 @@ class LongNumber
 	static const std::string UnsignedMultiply(const std::string&, const std::string&);
 
 public:
+	static const std::string max_abs; // максимально возможный модуль числа
 	const LongNumber();
 	const LongNumber(const char*, const int);
 	const LongNumber(const std::string&, const int);
@@ -109,4 +109,3 @@ public:
 	const LongNumber operator--(int);
 	
 };
-

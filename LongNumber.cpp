@@ -1,21 +1,53 @@
 #include "LongNumber.h"
 #include <stdexcept>
+#include <utility>
 #include <iostream>
 
 using std::string;
 using std::vector;
+using std::length_error;
+using std::logic_error;
 using std::max;
 using std::min;
+using std::swap;
 
+// примечание: строка max_abs может содержать только девятки
+// иначе алгоритм не будет правильно работать
 const string LongNumber::max_abs = string(50, '9'); // 10^50 - 1
 
-inline const bool is_numeric(const string& str)
+inline void reverse(char* str, const int len)
 {
-	for (auto symbol : str) { if (symbol < '0' || symbol > '9') return false; }
+	const auto half = len >> 1;
+	for (int i = 0; i < half; ++i) swap(str[i], str[len - i - 1]);
+}
+
+inline void reverse(string& str)
+{
+	const auto half = str.length() >> 1;
+	for (int i = 0; i < half; ++i) swap(str[i], str[str.length() - i - 1]);
+}
+
+inline const bool is_numeric(const char* str)
+{
+	for (int i = 0; str[i] != 0; ++i)
+	{
+		//if ((unsigned char)str[i] + 198ui8 < 246ui8) return false;
+		if (str[i] < '0' || str[i] > '9') return false;
+	}
 	return true;
 }
 
-inline string reversed(const string& str)
+inline const bool is_numeric(const string& str)
+{
+	for (char symbol : str) 
+	{
+		//if ((unsigned char)symbol + 198ui8 < 246ui8) return false;
+		if (symbol < '0' || symbol > '9') return false;
+	}
+	return true;
+}
+
+inline const string reversed(const string& str)
 {
 	string result;
 	result.reserve(str.length());
@@ -27,23 +59,13 @@ const string LongNumber::NumToStr(long long value)
 {
 	if (value == 0) return "";
 	if (value > 0) value = -value;
-	char* buff = (char*)malloc(25);
-	int index = -1;
 	string str;
 	while (value < 0)
 	{
-		index++;
-		buff[index] = '0' - (value % 10);
+		str.push_back('0' - (value % 10));
 		value /= 10;
 	}
-
-	while (index >= 0)
-	{
-		str.push_back(buff[index]);
-		index--;
-	}
-
-	free(buff);
+	reverse(str);
 	return str;
 }
 
@@ -86,6 +108,7 @@ const string LongNumber::UnsignedAdd(const string& a, const string& b)
 		--indexA;
 		--indexB;
 	}
+	if (result.length() > max_abs.length()) throw length_error("Result number is too big");
 	return reversed(result);
 }
 
@@ -124,13 +147,12 @@ const string LongNumber::UnsignedMultiply(const string& a, const string& b)
 {
 	const string& longer = a.length() > b.length() ? a : b;
 	const string& shorter = a.length() <= b.length() ? a : b;
-	
+	string res;
 	if (shorter.empty() || shorter[0] == '0') return "0";
 	else if (shorter == "1") return longer;
 	else if (shorter.length() == 1)
 	{
-		string result;
-		result.reserve(longer.length() + 1);
+		char* buff = (char*)malloc(longer.length() + 2);
 		int carry = 0;
 		int index = longer.length() - 1;
 		const int digit = shorter[0] - '0';
@@ -140,10 +162,13 @@ const string LongNumber::UnsignedMultiply(const string& a, const string& b)
 			const int res = digit * digit2 + carry;
 			if (res == 0 && index < 0) break;
 			carry = res / 10;
-			result.push_back((res % 10) + '0');
+			buff[longer.length() - index - 1] = ((res % 10) + '0');
 			--index;
 		}
-		return reversed(result);
+		buff[longer.length() - index - 1] = 0;
+		reverse(buff, longer.length() - index - 1);
+		res = buff;
+		free(buff);
 	}
 	else
 	{
@@ -153,16 +178,18 @@ const string LongNumber::UnsignedMultiply(const string& a, const string& b)
 		// n - non-negative integer
 		// xy = ac*10^(2n) + [(a+b)(c+d)-ac-bd]*10^n + bd
 		const auto n = longer.length() >> 1;
-		const auto index = max(0ll, (signed long long)(shorter.length() - n));
-		string A = longer.substr(0, longer.length() - n);
-		string B = StripLeadingZeros(longer.substr(longer.length() - n));
-		string C = index == 0 ? "0" : shorter.substr(0, index);
-		string D = StripLeadingZeros(shorter.substr(index));
-		string AC = UnsignedMultiply(A, C);
-		string BD = UnsignedMultiply(B, D);
-		string AD_PLUS_BC = UnsignedSubtract(UnsignedSubtract(UnsignedMultiply(UnsignedAdd(A, B), UnsignedAdd(C, D)), AC), BD);
-		return UnsignedAdd(UnsignedAdd(AC + string(n << 1, '0'), AD_PLUS_BC + string(n, '0')), BD);
+		const auto index = max(0ll, ((long long)shorter.length() - (long long)n));
+		const string A = longer.substr(0, longer.length() - n);
+		const string B = StripLeadingZeros(longer.substr(longer.length() - n));
+		const string C = index == 0 ? "0" : shorter.substr(0, index);
+		const string D = StripLeadingZeros(shorter.substr(index));
+		const string AC = UnsignedMultiply(A, C);
+		const string BD = UnsignedMultiply(B, D);
+		const string AD_PLUS_BC = UnsignedSubtract(UnsignedSubtract(UnsignedMultiply(UnsignedAdd(A, B), UnsignedAdd(C, D)), AC), BD);
+		res = UnsignedAdd(UnsignedAdd(AC + string(n << 1, '0'), AD_PLUS_BC + string(n, '0')), BD);
 	}
+	if (res.length() > max_abs.length()) throw length_error("Result number is too big");
+	return res;
 }
 
 void LongNumber::AddToVector(vector<LongNumber*>& vec)
@@ -181,7 +208,8 @@ LongNumber::LongNumber(const char* value, const int sign)
 	string str = value;
 	if (!is_numeric(str)) throw std::invalid_argument("String must be a numeric string");
 	string stripped = StripLeadingZeros(str);
-	this->str = sign != 0 ? (stripped.length() > max_abs.length() ? max_abs : stripped) : "";
+	if (stripped.length() > max_abs.length()) throw length_error("Result number is too big");
+	this->str = stripped == "0" ? "" : stripped;
 	this->sign = this->str.empty() ? 0 : sign > 0 ? 1 : -1;
 }
 
@@ -189,7 +217,8 @@ LongNumber::LongNumber(const string& str, const int sign)
 {
 	if (!is_numeric(str)) throw std::invalid_argument("String must be a numeric string");
 	string stripped = StripLeadingZeros(str);
-	this->str = sign != 0 ? (stripped.length() > max_abs.length() ? max_abs : stripped) : "";
+	if (stripped.length() > max_abs.length()) throw length_error("Result number is too big");
+	this->str = stripped == "0" ? "" : stripped;
 	this->sign = this->str.empty() ? 0 : sign > 0 ? 1 : -1;
 }
 
@@ -343,8 +372,9 @@ const LongNumber LongNumber::operator+(const LongNumber& other) const
 	if (this->sign == 0) return other;
 	if (other.sign == 0) return *this;
 	if (other.sign == this->sign) return LongNumber(UnsignedAdd(this->str, other.str), this->sign);
-	const LongNumber* bigger = this->CompareAbs(other) >= 0 ? this : &other;
-	const LongNumber* smaller = *bigger == other ? this : &other;
+	const auto cmp = this->CompareAbs(other);
+	const auto bigger = cmp >= 0 ? this : &other;
+	const auto smaller = cmp < 0 ? this : &other;
 	return LongNumber(UnsignedSubtract(bigger->str, smaller->str), bigger->sign);
 }
 
@@ -416,6 +446,7 @@ const LongNumber& LongNumber::operator-=(const long long other)
 const LongNumber LongNumber::operator*(const LongNumber& other) const
 {
 	if (this->sign == 0 || other.sign == 0) return 0;
+	if (this->str.length() + other.str.length() - 1 > max_abs.length()) throw length_error("Result number is too big");
 	return LongNumber(UnsignedMultiply(this->str, other.str), this->sign * other.sign);
 }
 
@@ -457,12 +488,8 @@ const LongNumber& LongNumber::operator++()
 	{
 		int nines = 0;
 		while (nines < str.length() && str[str.length() - 1 - nines] == '9') nines++;
-		if (nines == str.length() && str.length() < max_abs.length())
-		{
-			str = string("1") + string(str.length(), '0');
-			str.shrink_to_fit();
-		}
 
+		if (nines == str.length() && str.length() < max_abs.length()) throw length_error("Result number is too big");
 		else if (nines < str.length())
 		{
 			for (int i = 0; i < nines; i++) str[str.length() - 1 - i] = '0';
@@ -510,12 +537,7 @@ const LongNumber& LongNumber::operator--()
 	{
 		int nines = 0;
 		while (nines < str.length() && str[str.length() - 1 - nines] == '9') nines++;
-		if (nines == str.length() && str.length() < max_abs.length())
-		{
-			str = string("1") + string(str.length(), '0');
-			str.shrink_to_fit();
-		}
-
+		if (nines == str.length() && str.length() < max_abs.length()) throw length_error("Result number is too big");
 		else if (nines < str.length())
 		{
 			for (int i = 0; i < nines; i++) str[str.length() - 1 - i] = '0';
