@@ -127,16 +127,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="Sword.cpp" />
+    <ClCompile Include="Utility.cpp" />
+    <ClCompile Include="Pistol.cpp" />
+    <ClCompile Include="Host.cpp" />
     <ClCompile Include="LabsSem3.cpp" />
     <ClCompile Include="LongNumber.cpp" />
     <ClCompile Include="LongNumber2.cpp" />
     <ClCompile Include="MyString.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Team.cpp" />
+    <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="Connection.h" />
+    <ClInclude Include="game_error.h" />
+    <ClInclude Include="Sword.h" />
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="connection_error.h" />
+    <ClInclude Include="Pistol.h" />
+    <ClInclude Include="Host.h" />
     <ClInclude Include="LongNumber.h" />
     <ClInclude Include="LongNumber2.h" />
     <ClInclude Include="MyString.h" />
     <ClInclude Include="MyString2.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Team.h" />
+    <ClInclude Include="Weapon.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

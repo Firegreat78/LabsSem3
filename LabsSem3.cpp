@@ -1,81 +1,59 @@
 #include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <ctime>
 #include "LongNumber.h"
 #include "MyString.h"
+#include "Player.h"
+#include "Host.h"
+#include "Utility.h"
+#include "Weapon.h"
+#include "Pistol.h"
+#include "Sword.h"
 
-using std::string;
-using std::cout;
-using std::cin;
-using std::vector;
-using std::swap;
-using std::exception;
+using namespace std;
+using namespace utility;
 
-LongNumber arr[4];
-LongNumber arr2d[5][5]; // массивы в куче
 
+Host host;
 int main()
 {
-	LongNumber st_arr[2];
-	LongNumber st_arr2d[2][2]; // массивы в стеке рядом с блоком try
-	exception a;
-	try
+	// Weapons - ToString, cout:
+	Pistol pistol1(Vector2(1, 3));
+	Sword sword1(Vector2(3, 1));
+	cout << "Weapons - ToString, cout:\n";
+	cout << pistol1 << '\n' << sword1 << '\n';
+
+	// перегрузка оператора =
+	Connection a;
+	Connection b;
+	Client client("Nick");
+	client.connect(host);
+	Player pl("Player1", 100, Vector2(5, 12));
+	pl = b;
+
+	// virtual
+	Pistol pistol(pl);
+	Sword sword(pl);
+	Weapon& wpPistol = pistol;
+	Weapon& wpSword = sword;
+
+	cout << "test_virtual:\n";
+	wpPistol.test_virtual();
+	wpSword.test_virtual();
+	cout << "on_attacking:\n";
+	wpPistol.on_attacking();
+	wpSword.on_attacking();
+
+	cout << "on_attacking_not_virtual:\n";
+	wpPistol.on_attacking_not_virtual();
+	wpSword.on_attacking_not_virtual();
+
+
+	// SinCos:
+	for (double rad = 0; rad < 2*3.1415926; rad += (3.1415926/32))
 	{
-		st_arr[0] = 54347537472;
-		st_arr[1] = -5434753232327472;
-		st_arr2d[1][0] = 694;
-		st_arr2d[0][0] = -44123631;
-		arr2d[1][2] = 123; // значение сохраняется
-		arr2d[0][1] = 14344523; // значение сохраняется
-		arr[0] = LongNumber(LongNumber::max_abs, 1); // выполнится, т. к. исключение будет вызвано после присваивания
-		arr[3] = LongNumber(LongNumber::max_abs, 1); // выполнится, т. к. исключение будет вызвано после присваивания
-		arr[1] = arr[0] + 434; // arr[1] будет в том состоянии, в каком он был до блока try, выражение (arr[0] + 434) не будет "вычислено"
-		arr[2] = 434; // не выполнится, т. к. исключение было вызвано до присваивания
-	}
-	catch (const exception e)
-	{
-
-	}
-
-	try
-	{
-		string numeric;
-		cout << "Enter a numeric string: ";
-		cin >> numeric; cout << '\n';
-		LongNumber num(numeric, -1); // знак отрицательный
-		cout << "Number: " << num.ToString() << '\n';
-	}
-
-	catch (const std::invalid_argument e) // можно отлавливать разные типы исключений
-	{
-		cout << "Exception description: ";
-		cout << e.what();
-	}
-
-	catch (const std::logic_error e)
-	{
-		cout << "Exception description: ";
-		cout << e.what();
-	}
-
-
-	MyString non_printable = "12345";
-	try
-	{
-		non_printable += 6; // управляющий символ
-	}
-
-	catch (std::exception e)
-	{
-
-	}
-
-	try
-	{
-		non_printable[0] = 4; // управляющий символ (не отловлен)
-	}
-
-	catch (std::exception e)
-	{
-
+		const auto sc = SinCos(rad);
+		cout << "Radians: " << rad << ", SinCos: (" << sc.first << "; " << sc.second << ")\n";
 	}
 }
