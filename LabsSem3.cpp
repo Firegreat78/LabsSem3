@@ -2,6 +2,8 @@
 #include <vector>
 #include <unordered_map>
 #include <ctime>
+#include <algorithm>
+#include <ranges>
 #include "LongNumber.h"
 #include "MyString.h"
 #include "Player.h"
@@ -11,49 +13,42 @@
 #include "Pistol.h"
 #include "Sword.h"
 
-using namespace std;
-using namespace utility;
-
+using std::vector;
+using utility::Vector2;
+using std::sort;
+using std::copy_if;
+using std::back_inserter;
 
 Host host;
+
+struct smaller
+{
+	template<class T>
+	bool operator()(T const& a, T const& b) const { return a < b; }
+};
+
 int main()
 {
-	// Weapons - ToString, cout:
-	Pistol pistol1(Vector2(1, 3));
-	Sword sword1(Vector2(3, 1));
-	cout << "Weapons - ToString, cout:\n";
-	cout << pistol1 << '\n' << sword1 << '\n';
+	// поиск (фильтр)
+	vector<Connection*> connections;
+	vector<Connection*> filtered;
+	Connection connection;
+	Client client("Bob");
+	Player player("Alex", 100, Vector2(0, 1));
+	connections.push_back(&connection);
+	connections.push_back(&client);
+	connections.push_back(&player);
 
-	// перегрузка оператора =
-	Connection a;
-	Connection b;
-	Client client("Nick");
-	client.connect(host);
-	Player pl("Player1", 100, Vector2(5, 12));
-	pl = b;
+	copy_if(connections.begin(), connections.end(), back_inserter(filtered), 
+		[](Connection* c) {return c->get_port() == 8001; });
 
-	// virtual
-	Pistol pistol(pl);
-	Sword sword(pl);
-	Weapon& wpPistol = pistol;
-	Weapon& wpSword = sword;
-
-	cout << "test_virtual:\n";
-	wpPistol.test_virtual();
-	wpSword.test_virtual();
-	cout << "on_attacking:\n";
-	wpPistol.on_attacking();
-	wpSword.on_attacking();
-
-	cout << "on_attacking_not_virtual:\n";
-	wpPistol.on_attacking_not_virtual();
-	wpSword.on_attacking_not_virtual();
-
-
-	// SinCos:
-	for (double rad = 0; rad < 2*3.1415926; rad += (3.1415926/32))
-	{
-		const auto sc = SinCos(rad);
-		cout << "Radians: " << rad << ", SinCos: (" << sc.first << "; " << sc.second << ")\n";
-	}
+	// сортировка по неубыванию
+	vector<LongNumber> long_numbers;
+	long_numbers.push_back(3);
+	long_numbers.push_back(3345452020);
+	long_numbers.push_back(-35342);
+	long_numbers.push_back(-35344342);
+	long_numbers.push_back(INT64_MAX);
+	long_numbers.push_back(INT64_MIN);
+	sort(long_numbers.begin(), long_numbers.end(), smaller());
 }

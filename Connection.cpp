@@ -23,3 +23,8 @@ void Connection::disconnect(Host& host)
 	if (host.connections.count(this->ip_address)) host.connections.erase(this->ip_address);
 	else throw connection_error("Cannot disconect from the host: this address is not connected to the host");
 }
+
+const int Connection::get_port() const
+{
+	return this->port;
+}

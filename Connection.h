@@ -17,5 +17,6 @@ protected:
 public:
 	Connection();
 	void connect(Host& host);
+	const int get_port() const;
 	void disconnect(Host& host);
 };
